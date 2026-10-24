@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '../api'
-import type { PaginationDetails, Player, Team } from '../types'
+import type { OrderKey, PaginationDetails, Player, Team, TeamStatKey } from '../types'
 import {
   PlayerAvatar,
   TeamCard,
@@ -11,7 +11,7 @@ import {
   translateDivision,
   translatePosition,
 } from './Cards'
-import { fmt, PaginationBar } from './PaginationBar'
+import { fmt, PaginationBar, STATS } from './PaginationBar'
 
 export function TeamsView({ initialTeams }: { initialTeams: Team[] }) {
   const navigate = useNavigate()
@@ -19,6 +19,8 @@ export function TeamsView({ initialTeams }: { initialTeams: Team[] }) {
   const [pagination, setPagination] = useState<PaginationDetails | null>(null)
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(15)
+  const [stat, setStat] = useState<TeamStatKey | ''>('power-rank')
+  const [order, setOrder] = useState<OrderKey>('asc')
   const [query, setQuery] = useState('')
   const [mode, setMode] = useState<'abb' | 'id'>('abb')
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null)
@@ -27,13 +29,13 @@ export function TeamsView({ initialTeams }: { initialTeams: Team[] }) {
 
   useEffect(() => {
     api
-      .getTeams({ page, limit })
+      .getTeams({ page, limit, stat, order })
       .then((r) => {
         setTeams(r.data)
         setPagination(r.pagination)
       })
       .catch((e: Error) => setError(e.message))
-  }, [page, limit])
+  }, [page, limit, stat, order])
 
   const selectTeam = (t: Team) => {
     setSelectedTeam(t)
@@ -65,6 +67,69 @@ export function TeamsView({ initialTeams }: { initialTeams: Team[] }) {
   return (
     <div className="space-y-6">
       <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">
+              Ordenar Franquias Por
+            </label>
+            <select
+              value={stat}
+              onChange={(e) => {
+                const nextStat = e.target.value as TeamStatKey | ''
+                setStat(nextStat)
+                if (nextStat === 'power-rank' || nextStat === 'league-rank') {
+                  setOrder('asc')
+                } else if (nextStat) {
+                  setOrder('desc')
+                }
+                setPage(1)
+              }}
+              className="bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-sm text-neutral-900"
+            >
+              <option value="">Padrão</option>
+              <option value="power-rank">Power Rank</option>
+              <option value="league-rank">Classificação na Liga (League Rank)</option>
+              <option value="championships">Títulos Conquistados</option>
+              {STATS.map((s) => (
+                <option key={s.key} value={s.key}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Ordem</label>
+            <select
+              value={order}
+              onChange={(e) => {
+                setOrder(e.target.value as OrderKey)
+                setPage(1)
+              }}
+              className="bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-sm text-neutral-900"
+            >
+              <option value="desc">Maior → Menor</option>
+              <option value="asc">Menor → Maior / #1 → #30</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Por Página</label>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value))
+                setPage(1)
+              }}
+              className="bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-sm text-neutral-900"
+            >
+              {[10, 15, 30].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <form onSubmit={handleSearch} className="flex flex-wrap items-end gap-2">
           <div>
             <label className="block text-xs font-medium text-neutral-500 mb-1">Buscar Franquia Por</label>
@@ -95,7 +160,7 @@ export function TeamsView({ initialTeams }: { initialTeams: Team[] }) {
               onClick={() => {
                 setQuery('')
                 setPage(1)
-                api.getTeams({ page: 1, limit }).then((r) => {
+                api.getTeams({ page: 1, limit, stat, order }).then((r) => {
                   setTeams(r.data)
                   setPagination(r.pagination)
                 })
@@ -106,24 +171,6 @@ export function TeamsView({ initialTeams }: { initialTeams: Team[] }) {
             </button>
           )}
         </form>
-
-        <div>
-          <label className="block text-xs font-medium text-neutral-500 mb-1">Por Página</label>
-          <select
-            value={limit}
-            onChange={(e) => {
-              setLimit(Number(e.target.value))
-              setPage(1)
-            }}
-            className="bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-sm text-neutral-900"
-          >
-            {[10, 15, 30].map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
       {error && (

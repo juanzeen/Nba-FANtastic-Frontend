@@ -88,9 +88,6 @@ export function HistoricalPlayerDetailView() {
         >
           ← Voltar para Lendas Históricas
         </Link>
-        <span className="text-xs font-mono text-neutral-400">
-          ID #{player._id} • slug: {player.slug}
-        </span>
       </div>
 
       {/* Cabeçalho da Lenda */}
@@ -167,7 +164,7 @@ export function HistoricalPlayerDetailView() {
               Maiores médias alcançadas em uma única temporada
             </p>
           </div>
-          <div className="grid grid-cols-5 gap-2 text-center text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
               <div className="text-[10px] font-semibold text-neutral-400">PTS/J</div>
               <div className="text-lg font-black text-orange-600 mt-0.5">
@@ -223,7 +220,7 @@ export function HistoricalPlayerDetailView() {
               Soma histórica em todas as temporadas regulares ({player.career_totals.games_played} J)
             </p>
           </div>
-          <div className="grid grid-cols-5 gap-2 text-center text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
               <div className="text-[10px] font-semibold text-neutral-400">PONTOS</div>
               <div className="text-base font-black text-orange-600 mt-1">

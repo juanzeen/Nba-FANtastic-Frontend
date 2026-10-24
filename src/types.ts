@@ -1,5 +1,24 @@
 export type StatKey = 'pts' | 'ast' | 'reb' | 'stl' | 'blk'
 export type HistoricalStatKey = 'pts' | 'ast' | 'reb' | 'stl' | 'blk' | 'championships'
+export type TeamStatKey =
+  | 'pts'
+  | 'ast'
+  | 'reb'
+  | 'stl'
+  | 'blk'
+  | 'championships'
+  | 'power-rank'
+  | 'league-rank'
+export type PositionFilterKey = 'guard' | 'forward' | 'center'
+export type RecordLabelKey =
+  | 'points'
+  | 'rebounds'
+  | 'assists'
+  | 'blocks'
+  | 'steals'
+  | '3pm'
+  | 'fg'
+  | 'gp'
 export type PeriodKey = 'season' | 'career'
 export type OrderKey = 'asc' | 'desc'
 
@@ -226,7 +245,10 @@ export interface HistoricalPlayer {
 }
 
 export interface HistoricalRecord {
+  _id?: number
   record: string
+  title?: string
+  label?: string
   value: number
   leader_full_name: string
   leader_id: number

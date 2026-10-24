@@ -3,23 +3,5 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  server: {
-    proxy: {
-      '/api': 'http://localhost:8000',
-      '/health': {
-        target: 'http://localhost:8000',
-        rewrite: () => '/',
-      },
-    },
-  },
-  preview: {
-    proxy: {
-      '/api': 'http://localhost:8000',
-      '/health': {
-        target: 'http://localhost:8000',
-        rewrite: () => '/',
-      },
-    },
-  },
+  plugins: [react(), tailwindcss()]
 })

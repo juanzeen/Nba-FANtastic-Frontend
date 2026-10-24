@@ -1,20 +1,33 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import type { HistoricalRecord } from '../types'
+import type { HistoricalRecord, RecordLabelKey } from '../types'
 import { PlayerAvatar, RecordCard, translateRecord } from './Cards'
+
+const RECORD_LABELS: { key: RecordLabelKey; label: string }[] = [
+  { key: 'points', label: 'Pontos (Points)' },
+  { key: 'rebounds', label: 'Rebotes (Rebounds)' },
+  { key: 'assists', label: 'Assistências (Assists)' },
+  { key: 'blocks', label: 'Tocos (Blocks)' },
+  { key: 'steals', label: 'Roubos (Steals)' },
+  { key: '3pm', label: 'Bolas de 3 (3PM)' },
+  { key: 'fg', label: 'Cestas de Quadra (FG)' },
+  { key: 'gp', label: 'Jogos Disputados (GP)' },
+]
 
 export function RecordsView() {
   const [records, setRecords] = useState<HistoricalRecord[]>([])
+  const [label, setLabel] = useState<RecordLabelKey | ''>('')
   const [categoryQuery, setCategoryQuery] = useState('')
   const [highlighted, setHighlighted] = useState<HistoricalRecord | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    setError('')
     api
-      .getHistoricalRecords()
+      .getHistoricalRecords({ label })
       .then((r) => setRecords(r.data))
       .catch((e: Error) => setError(e.message))
-  }, [])
+  }, [label])
 
   const inspectCategory = async (category: string) => {
     setError('')
@@ -29,13 +42,32 @@ export function RecordsView() {
   return (
     <div className="space-y-6">
       <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="font-bold text-base text-neutral-950">
-            Recordes Históricos, de Temporada e de Jogo Único da NBA
-          </h2>
-          <p className="text-xs text-neutral-500">
-            Clique em qualquer card de recorde ou busque por código de categoria (ex: ALL_TIME_PTS, SEASON_PPG, GAME_PTS)
-          </p>
+        <div className="flex flex-wrap items-end gap-4">
+          <div>
+            <h2 className="font-bold text-base text-neutral-950">
+              Recordes Históricos, de Temporada e de Jogo Único da NBA
+            </h2>
+            <p className="text-xs text-neutral-500">
+              Filtre por tipo de estatística, clique em qualquer card ou busque pelo código da categoria
+            </p>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">
+              Filtrar por Estatística
+            </label>
+            <select
+              value={label}
+              onChange={(e) => setLabel(e.target.value as RecordLabelKey | '')}
+              className="bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-sm text-neutral-900"
+            >
+              <option value="">Todas as Categorias</option>
+              {RECORD_LABELS.map((item) => (
+                <option key={item.key} value={item.key}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <form
           onSubmit={(e) => {

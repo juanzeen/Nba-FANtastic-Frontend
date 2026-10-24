@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '../api'
-import type { HistoricalPlayer, HistoricalStatKey, OrderKey, PaginationDetails } from '../types'
+import type {
+  HistoricalPlayer,
+  HistoricalStatKey,
+  OrderKey,
+  PaginationDetails,
+  PositionFilterKey,
+} from '../types'
 import { HistoricalPlayerCard } from './Cards'
 import { PaginationBar, STATS } from './PaginationBar'
 
@@ -12,6 +18,7 @@ export function HistoricalPlayersView() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(12)
   const [stat, setStat] = useState<HistoricalStatKey | ''>('pts')
+  const [position, setPosition] = useState<PositionFilterKey | ''>('')
   const [order, setOrder] = useState<OrderKey>('desc')
   const [query, setQuery] = useState('')
   const [mode, setMode] = useState<'slug' | 'id'>('slug')
@@ -22,14 +29,14 @@ export function HistoricalPlayersView() {
     setLoading(true)
     setError('')
     api
-      .getHistoricalPlayers({ page, limit, stat, order })
+      .getHistoricalPlayers({ page, limit, stat, position, order })
       .then((r) => {
         setPlayers(r.data)
         setPagination(r.pagination)
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
-  }, [page, limit, stat, order])
+  }, [page, limit, stat, position, order])
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,6 +78,22 @@ export function HistoricalPlayersView() {
                 </option>
               ))}
               <option value="championships">Títulos Conquistados</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Posição</label>
+            <select
+              value={position}
+              onChange={(e) => {
+                setPosition(e.target.value as PositionFilterKey | '')
+                setPage(1)
+              }}
+              className="bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-sm text-neutral-900"
+            >
+              <option value="">Todas</option>
+              <option value="guard">Armador (Guard)</option>
+              <option value="forward">Ala (Forward)</option>
+              <option value="center">Pivô (Center)</option>
             </select>
           </div>
           <div>

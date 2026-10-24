@@ -1,3 +1,4 @@
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { api } from "../api";
@@ -16,6 +17,32 @@ import {
   translatePosition,
 } from "./Cards";
 import { fmt } from "./PaginationBar";
+
+function AnimatedNumber({
+  value,
+  decimals = 0,
+}: {
+  value: number | null | undefined;
+  decimals?: number;
+}) {
+  const target = value ?? 0;
+  const count = useMotionValue(0);
+  const formatted = useTransform(count, (latest) =>
+    decimals > 0
+      ? Number.isInteger(target)
+        ? String(Math.round(latest))
+        : latest.toFixed(decimals)
+      : Math.round(latest).toLocaleString("pt-BR"),
+  );
+
+  useEffect(() => {
+    const controls = animate(count, target, { duration: 1.2, ease: "easeOut" });
+    return () => controls.stop();
+  }, [count, target]);
+
+  if (decimals > 0 && (value === null || value === undefined)) return <>—</>;
+  return <motion.span>{formatted}</motion.span>;
+}
 
 export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
   const { id } = useParams<{ id: string }>();
@@ -192,10 +219,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 PTS
               </div>
               <div className="text-xl font-black text-orange-600 mt-0.5">
-                {(player.season.totals.points ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.season.totals.points} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.season.avg.points)}
+                Méd: <AnimatedNumber value={player.season.avg.points} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -203,10 +230,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 AST
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.season.totals.assists ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.season.totals.assists} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.season.avg.assists)}
+                Méd: <AnimatedNumber value={player.season.avg.assists} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -214,10 +241,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 REB
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.season.totals.rebounds ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.season.totals.rebounds} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.season.avg.rebounds)}
+                Méd: <AnimatedNumber value={player.season.avg.rebounds} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -225,10 +252,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 STL
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.season.totals.steals ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.season.totals.steals} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.season.avg.steals)}
+                Méd: <AnimatedNumber value={player.season.avg.steals} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -236,10 +263,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 BLK
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.season.totals.blocks ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.season.totals.blocks} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.season.avg.blocks)}
+                Méd: <AnimatedNumber value={player.season.avg.blocks} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -247,7 +274,7 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 Jogos
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {player.season.totals.games ?? 0}
+                <AnimatedNumber value={player.season.totals.games} />
               </div>
             </div>
           </div>
@@ -266,10 +293,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 PTS
               </div>
               <div className="text-xl font-black text-orange-600 mt-0.5">
-                {(player.career.totals.points ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.career.totals.points} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.career.avg.points)}
+                Méd: <AnimatedNumber value={player.career.avg.points} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -277,10 +304,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 AST
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.career.totals.assists ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.career.totals.assists} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.career.avg.assists)}
+                Méd: <AnimatedNumber value={player.career.avg.assists} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -288,10 +315,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 REB
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.career.totals.rebounds ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.career.totals.rebounds} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.career.avg.rebounds)}
+                Méd: <AnimatedNumber value={player.career.avg.rebounds} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -299,10 +326,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 STL
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.career.totals.steals ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.career.totals.steals} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.career.avg.steals)}
+                Méd: <AnimatedNumber value={player.career.avg.steals} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -310,10 +337,10 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 BLK
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {(player.career.totals.blocks ?? 0).toLocaleString("pt-BR")}
+                <AnimatedNumber value={player.career.totals.blocks} />
               </div>
               <div className="text-[10px] text-neutral-400 mt-0.5">
-                Méd: {fmt(player.career.avg.blocks)}
+                Méd: <AnimatedNumber value={player.career.avg.blocks} decimals={1} />
               </div>
             </div>
             <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3">
@@ -321,7 +348,7 @@ export function PlayerDetailView({ teams = [] }: { teams?: Team[] }) {
                 Jogos
               </div>
               <div className="text-xl font-black text-neutral-950 mt-0.5">
-                {player.career.totals.games ?? 0}
+                <AnimatedNumber value={player.career.totals.games} />
               </div>
             </div>
           </div>

@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { api } from '../api'
-import type { OrderKey, PaginationDetails, PeriodKey, Player, StatKey } from '../types'
+import type {
+  OrderKey,
+  PaginationDetails,
+  PeriodKey,
+  Player,
+  PositionFilterKey,
+  StatKey,
+} from '../types'
 import { PlayerCard } from './Cards'
 import { PaginationBar, STATS } from './PaginationBar'
 
@@ -12,6 +19,7 @@ export function PlayersView() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(12)
   const [stat, setStat] = useState<StatKey | ''>('pts')
+  const [position, setPosition] = useState<PositionFilterKey | ''>('')
   const [period, setPeriod] = useState<PeriodKey>('career')
   const [order, setOrder] = useState<OrderKey>('desc')
   const [searchQuery, setSearchQuery] = useState('')
@@ -23,14 +31,14 @@ export function PlayersView() {
     setLoading(true)
     setError('')
     api
-      .getPlayers({ page, limit, stat, period, order })
+      .getPlayers({ page, limit, stat, position, period, order })
       .then((res) => {
         setPlayers(res.data)
         setPagination(res.pagination)
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
-  }, [page, limit, stat, period, order])
+  }, [page, limit, stat, position, period, order])
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,6 +82,22 @@ export function PlayersView() {
                   {s.label}
                 </option>
               ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Posição</label>
+            <select
+              value={position}
+              onChange={(e) => {
+                setPosition(e.target.value as PositionFilterKey | '')
+                setPage(1)
+              }}
+              className="bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-sm text-neutral-900"
+            >
+              <option value="">Todas</option>
+              <option value="guard">Armador (Guard)</option>
+              <option value="forward">Ala (Forward)</option>
+              <option value="center">Pivô (Center)</option>
             </select>
           </div>
           <div>
